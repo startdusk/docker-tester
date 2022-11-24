@@ -13,6 +13,11 @@ keywords = [
   "database",
   "database-tester"
 ]
+documentation = "https://docs.rs/docker_tester"
+readme = "README.md"
+authors = [
+    "startdusk<clylia217@gmail.com>",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
