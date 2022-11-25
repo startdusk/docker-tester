@@ -1,6 +1,6 @@
 [package]
 name = "docker_tester"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "This library provides simple functions for starting and stopping containers using Docker."
 license = "MIT"
