@@ -20,5 +20,9 @@ fn main() {
     ];
     let container = start_container(image, port, args)
         .expect("Failed to start Postgres contaienr");
+
+    assert!(container.id);
+    assert!(container.host);
+    assert!(container.port);
 }
 ```
