@@ -23,6 +23,25 @@
 //!     assert!(container.port);
 //! }
 //! ```
+//!
+//! ## db-tester
+//!
+//! ```rust
+//! use docker_tester::TestPostgres;
+//!
+//! #[tokio::test]
+//! async fn it_works() {
+//!     let test_postgres = TestPostgres::new("./migrations").await.unwrap();
+//!     let pool = test_postgres.get_pool().await;
+//!
+//!     // do something with the pool
+//!
+//!     // when test_postgres gets dropped, the database will be dropped on Docker
+//! }
+//! ```
+
+mod db_tester;
+pub use db_tester::TestPostgres;
 
 use std::process::Command;
 use std::{thread, time};
@@ -94,8 +113,7 @@ Host:        {host}
                 return Err(anyhow::anyhow!("cannot start the image[{image}] container"));
             }
             println!("Container[{id}] state {output}, Watting for start");
-            let ten_millis = time::Duration::from_secs(i);
-            thread::sleep(ten_millis);
+            thread::sleep(time::Duration::from_secs(i));
         }
     }
 
@@ -111,7 +129,8 @@ Host:        {host}
 /// # Example
 ///
 /// ```
-/// stop_container("dfd60e4ef0c0").expect("Failed to stop the container");
+/// let container_id = "dfd60e4ef0c0";
+/// stop_container(container_id).expect("Failed to stop the container");
 /// ```
 pub fn stop_container(id: String) -> Result<(), anyhow::Error> {
     let output = Command::new("docker").arg("stop").arg(&id).output()?;
@@ -174,24 +193,4 @@ fn start_and_stop_container() {
     let args = &[];
     let container = start_container(image, port, args).unwrap();
     stop_container(container.id).unwrap();
-}
-
-#[test]
-#[ignore = "for local test"]
-fn test_extract_ip_and_port() {
-    let id = "dfd60e4ef0c0";
-    let port = "5432";
-    let settings = extract_ip_and_port(id, port).unwrap();
-
-    assert_eq!("0.0.0.0", settings.host_ip);
-    assert_eq!("5432", settings.host_port);
-}
-
-#[test]
-fn parse_json_string() {
-    let json_string = r#"[{"HostIp":"0.0.0.0","HostPort":"5432"}]"#;
-
-    let v: serde_json::Value = serde_json::from_str(json_string).unwrap();
-    assert_eq!("0.0.0.0", v[0]["HostIp"]);
-    assert_eq!("5432", v[0]["HostPort"]);
 }
