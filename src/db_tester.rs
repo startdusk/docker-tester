@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::{start_container, stop_container};
 
+/// TestPostgres contains a db connection infomation.
 pub struct TestPostgres {
     pub host: String,
     pub port: u16,
@@ -14,6 +15,7 @@ pub struct TestPostgres {
 }
 
 impl TestPostgres {
+    /// creates a TestPostgres.
     pub async fn new(migration_path: impl Into<String>) -> Result<Self, anyhow::Error> {
         // config databse
         let dbname = format!("test_postgres_{}", Uuid::new_v4());
@@ -81,6 +83,7 @@ impl TestPostgres {
         Ok(test_postgres)
     }
 
+    /// gets a postgres db pool.
     pub async fn get_pool(&self) -> PgPool {
         sqlx::postgres::PgPoolOptions::default()
             .max_connections(5)
@@ -99,6 +102,7 @@ impl TestPostgres {
             )
         }
     }
+
     pub fn url(&self) -> String {
         format!("{}/{}", self.server_url(), self.dbname)
     }
@@ -107,6 +111,7 @@ impl TestPostgres {
 impl Drop for TestPostgres {
     fn drop(&mut self) {
         stop_container(self.container_id.clone()).expect("Failed to stop Postgres container");
+        println!("Postgres container {} dropped", self.container_id)
     }
 }
 
